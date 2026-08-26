@@ -99,14 +99,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
     <main className={styles.page} data-theme={theme}>
       <div className={styles.banner}>
         <div className={styles.bannerStage} aria-hidden>
-          <Image
-            className={styles.bannerArt}
-            src="/banner.png"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-          />
+          <div className={styles.bannerArt} />
           <div className={styles.bannerAurora} />
           <div className={styles.bannerVignette} />
         </div>

@@ -38,8 +38,9 @@
 }
 
 .bannerArt {
-  object-fit: cover;
-  object-position: 72% center;
+  position: absolute;
+  inset: -8%;
+  background: #020805 url("/banner.png") 72% center / cover no-repeat;
   transform: scale(1.08);
   filter: saturate(1.35) contrast(1.12) brightness(0.92);
   animation: bannerDrift 28s ease-in-out infinite alternate;
