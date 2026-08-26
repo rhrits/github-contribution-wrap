@@ -34,6 +34,24 @@
   backdrop-filter: blur(16px);
 }
 
+.brandLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandMark {
+  width: 28px;
+  height: 28px;
+  display: block;
+  border-radius: 7px;
+}
+
 .navMark {
   color: #f4fff6;
   font-weight: 800;

@@ -1,0 +1,20 @@
+# WRAP.
+
+> GitHub contribution wrap by Hritik Raj (@rhrits). Built in India.
+
+WRAP. is a free web app that turns any public GitHub contribution calendar into a forest heatmap, harbor fleet, skyline, or commit current. Users can inspect days, unlock awards, download a wrap image, and share a thought.
+
+## Product
+- Name: WRAP.
+- Category: Developer tool / GitHub visualization
+- Price: Free (INR 0)
+- Origin: India
+- Author: Hritik Raj (@rhrits)
+- Source: https://github.com/rhrits/github-contribution-wrap
+
+## How to use
+Open the site, enter a GitHub username (or `/?u=username`), and WRAP. loads public contribution years.
+
+## Contact
+- GitHub: https://github.com/rhrits
+- X: https://x.com/rhrits
