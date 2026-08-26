@@ -93,90 +93,169 @@ def logo_pixels(size: int) -> list[list[tuple[int, int, int]]]:
     return pixels
 
 
-def og_pixels(width: int = 1200, height: int = 630) -> list[list[tuple[int, int, int]]]:
+LEVELS = [
+    (22, 27, 34),
+    (14, 68, 41),
+    (0, 109, 50),
+    (38, 166, 65),
+    (57, 211, 83),
+]
+
+
+def blend(base: tuple[int, int, int], color: tuple[int, int, int], amount: float) -> tuple[int, int, int]:
+    amount = max(0.0, min(1.0, amount))
+    return (
+        min(255, int(base[0] + (color[0] - base[0]) * amount)),
+        min(255, int(base[1] + (color[1] - base[1]) * amount)),
+        min(255, int(base[2] + (color[2] - base[2]) * amount)),
+    )
+
+
+def add_light(base: tuple[int, int, int], color: tuple[int, int, int], amount: float) -> tuple[int, int, int]:
+    amount = max(0.0, min(1.0, amount))
+    return (
+        min(255, int(base[0] + color[0] * amount)),
+        min(255, int(base[1] + color[1] * amount)),
+        min(255, int(base[2] + color[2] * amount)),
+    )
+
+
+def cell_level(week: int, day: int) -> int:
+    n = (week * 13 + day * 29 + (week // 7) * 11) % 100
+    wave = abs(((week % 18) - 9))
+    peak = 18 - wave * 2 + (4 if 2 <= day <= 4 else 0)
+    score = n // 4 + peak
+    if score > 38:
+        return 4
+    if score > 28:
+        return 3
+    if score > 18:
+        return 2
+    if score > 10:
+        return 1
+    return 0
+
+
+def scene_pixels(width: int, height: int, *, wordmark: bool = True) -> list[list[tuple[int, int, int]]]:
     pixels = [[BG for _ in range(width)] for _ in range(height)]
-    mark = 280
+    accent = hex_rgb("#39d353")
+    glow = hex_rgb("#6dff8a")
+    deep = hex_rgb("#022c16")
+    teal = hex_rgb("#14b8a6")
+
+    def put(x: int, y: int, color: tuple[int, int, int]) -> None:
+        if 0 <= x < width and 0 <= y < height:
+            pixels[y][x] = color
+
+    def radial(cx: int, cy: int, radius: int, color: tuple[int, int, int], strength: float) -> None:
+        r2 = radius * radius
+        y0, y1 = max(0, cy - radius), min(height, cy + radius)
+        x0, x1 = max(0, cx - radius), min(width, cx + radius)
+        for y in range(y0, y1):
+            dy = y - cy
+            row = pixels[y]
+            for x in range(x0, x1):
+                d2 = (x - cx) * (x - cx) + dy * dy
+                if d2 >= r2:
+                    continue
+                t = 1.0 - d2 / r2
+                row[x] = add_light(row[x], color, t * t * strength)
+
+    radial(int(width * 0.78), int(height * 0.18), int(width * 0.55), deep, 0.85)
+    radial(int(width * 0.22), int(height * 0.72), int(width * 0.42), teal, 0.18)
+    radial(int(width * 0.62), int(height * 0.48), int(width * 0.38), accent, 0.22)
+    radial(int(width * 0.88), int(height * 0.82), int(width * 0.32), glow, 0.12)
+
+    # Contribution-field texture: a huge year graph filling the banner.
+    pad_x, pad_y = int(width * 0.03), int(height * 0.12)
+    cols, rows = 53, 7
+    gap = max(3, height // 90)
+    cell = max(10, (height - pad_y * 2 - gap * (rows - 1)) // rows)
+    field_w = cols * cell + (cols - 1) * gap
+    field_h = rows * cell + (rows - 1) * gap
+    ox = width - int(width * 0.03) - field_w
+    oy = (height - field_h) // 2
+    for week in range(cols):
+        for day in range(rows):
+            color = LEVELS[cell_level(week, day)]
+            x0 = ox + week * (cell + gap)
+            y0 = oy + day * (cell + gap)
+            x1 = min(width, x0 + cell)
+            y1 = min(height, y0 + cell)
+            x0c = max(0, x0)
+            y0c = max(0, y0)
+            if x1 <= x0c or y1 <= y0c:
+                continue
+            for y in range(y0c, y1):
+                row = pixels[y]
+                for x in range(x0c, x1):
+                    row[x] = blend(row[x], color, 0.88)
+
+    # Soft horizon sheen.
+    for y in range(height):
+        fall = 1.0 - abs(y / height - 0.46) * 2.2
+        if fall <= 0:
+            continue
+        amount = fall * fall * 0.08
+        row = pixels[y]
+        for x in range(width):
+            row[x] = add_light(row[x], glow, amount)
+
+    # Vignette.
+    cx, cy = width / 2, height / 2
+    max_d = (cx * cx + cy * cy) ** 0.5
+    for y in range(height):
+        dy = y - cy
+        row = pixels[y]
+        for x in range(width):
+            d = ((x - cx) * (x - cx) + dy * dy) ** 0.5 / max_d
+            row[x] = blend(row[x], (0, 0, 0), max(0.0, d - 0.45) * 1.4)
+
+    mark = min(height - 80, int(height * 0.46))
     logo = logo_pixels(mark)
-    ox, oy = 80, (height - mark) // 2
+    lx, ly = int(width * 0.055), (height - mark) // 2
     for y in range(mark):
         for x in range(mark):
-            pixels[oy + y][ox + x] = logo[y][x]
-    # Simple "WRAP." wordmark as block letters.
-    accent = hex_rgb("#39d353")
+            put(lx + x, ly + y, logo[y][x])
+    radial(lx + mark // 2, ly + mark // 2, mark, accent, 0.16)
+
+    if not wordmark:
+        return pixels
+
     white = (244, 255, 246)
     muted = hex_rgb("#8eab97")
-    start_x, start_y = 400, 210
-    scale = 8
+    start_x = lx + mark + int(width * 0.04)
+    start_y = height // 2 - int(height * 0.12)
+    scale = max(6, height // 78)
 
     def stamp(mask: list[str], x: int, y: int, color: tuple[int, int, int]) -> None:
-        for row, line in enumerate(mask):
+        for row_i, line in enumerate(mask):
             for col, ch in enumerate(line):
                 if ch != "#":
                     continue
                 for dy in range(scale):
                     for dx in range(scale):
-                        px, py = x + col * scale + dx, y + row * scale + dy
-                        if 0 <= px < width and 0 <= py < height:
-                            pixels[py][px] = color
+                        put(x + col * scale + dx, y + row_i * scale + dy, color)
 
-    w = [
-        "#     #",
-        "#     #",
-        "#  #  #",
-        "# # # #",
-        "##   ##",
-        "#     #",
-        "#     #",
-    ]
-    r = [
-        "##### ",
-        "#    #",
-        "#    #",
-        "##### ",
-        "#  #  ",
-        "#   # ",
-        "#    #",
-    ]
-    a = [
-        "  ###  ",
-        " #   # ",
-        "#     #",
-        "#######",
-        "#     #",
-        "#     #",
-        "#     #",
-    ]
-    p = [
-        "###### ",
-        "#     #",
-        "#     #",
-        "###### ",
-        "#      ",
-        "#      ",
-        "#      ",
-    ]
-    dot = [
-        "  ",
-        "  ",
-        "  ",
-        "  ",
-        "  ",
-        "##",
-        "##",
-    ]
+    w = ["#     #", "#     #", "#  #  #", "# # # #", "##   ##", "#     #", "#     #"]
+    r = ["##### ", "#    #", "#    #", "##### ", "#  #  ", "#   # ", "#    #"]
+    a = ["  ###  ", " #   # ", "#     #", "#######", "#     #", "#     #", "#     #"]
+    p = ["###### ", "#     #", "#     #", "###### ", "#      ", "#      ", "#      "]
+    dot = ["  ", "  ", "  ", "  ", "  ", "##", "##"]
     stamp(w, start_x, start_y, white)
     stamp(r, start_x + 8 * scale, start_y, white)
     stamp(a, start_x + 16 * scale, start_y, white)
     stamp(p, start_x + 24 * scale, start_y, white)
     stamp(dot, start_x + 32 * scale, start_y, accent)
-    sub = "GITHUB CONTRIBUTION WRAP  ·  INDIA"
-    # Underline bar instead of a bitmap font for the subtitle.
-    bar_y = start_y + 8 * scale + 28
+    bar_y = start_y + 8 * scale + int(scale * 0.7)
     for x in range(start_x, start_x + 34 * scale):
-        for y in range(bar_y, bar_y + 4):
-            pixels[y][x] = accent if (x - start_x) % 18 < 12 else muted
-    _ = sub
+        for y in range(bar_y, bar_y + max(3, scale // 3)):
+            put(x, y, accent if (x - start_x) % (scale * 2) < scale else muted)
     return pixels
+
+
+def og_pixels(width: int = 1200, height: int = 630) -> list[list[tuple[int, int, int]]]:
+    return scene_pixels(width, height, wordmark=True)
 
 
 def write_png(path: Path, pixels: list[list[tuple[int, int, int]]]) -> None:
@@ -198,9 +277,9 @@ def main() -> None:
     write_png(PUBLIC / "icon.png", logo_pixels(512))
     write_png(PUBLIC / "logo.png", logo_pixels(256))
     write_png(PUBLIC / "apple-icon.png", logo_pixels(180))
-    write_png(PUBLIC / "og.png", og_pixels())
+    write_png(PUBLIC / "og.png", scene_pixels(1200, 630, wordmark=True))
+    write_png(PUBLIC / "banner.png", scene_pixels(1920, 960, wordmark=True))
     favicon_png = png_bytes(logo_pixels(32))
-    write_png(PUBLIC / "favicon-32.png", logo_pixels(32))
     write_ico(PUBLIC / "favicon.ico", favicon_png)
     write_ico(APP / "favicon.ico", favicon_png)
 

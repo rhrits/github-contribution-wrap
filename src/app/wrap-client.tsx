@@ -97,50 +97,64 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
 
   return (
     <main className={styles.page} data-theme={theme}>
-      <header className={styles.nav}>
-        <Link className={styles.brandLink} href="/"><BrandLogo /></Link>
-        <span className={styles.navMeta}>GITHUB / CONTRIBUTION WRAP</span>
-        <a className={styles.navBack} href="https://github.com/rhrits">@rhrits</a>
-      </header>
-
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>Forest theme · Full-year heatmap</p>
-          <h1>Wrap your<br /><em>GitHub year.</em></h1>
-          <p className={styles.lede}>
-            Chart every contribution as a heatmap, a harbor of ships, a rising skyline, or a live ocean current — then share the voyage with a thought.
-          </p>
-          <form className={styles.search} onSubmit={onSubmit}>
-            <input
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="GitHub username"
-              aria-label="GitHub username"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-            <button type="submit" disabled={loading}>
-              <Search size={14} /> {loading ? "Loading" : "Show wrap"}
-            </button>
-          </form>
-          <div className={styles.examples}>
-            <span>Try</span>
-            {EXAMPLES.map((example) => (
-              <button key={example} type="button" onClick={() => void loadUser(example)}>
-                {example}
-              </button>
-            ))}
-          </div>
-          {error ? <p className={styles.error}>{error}</p> : null}
+      <div className={styles.banner}>
+        <div className={styles.bannerStage} aria-hidden>
+          <Image
+            className={styles.bannerArt}
+            src="/banner.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+          />
+          <div className={styles.bannerAurora} />
+          <div className={styles.bannerVignette} />
         </div>
-        <aside className={styles.heroPanel}>
-          <p className={styles.eyebrow}>How to inspect</p>
-          <p>
-            Hover a square on desktop. On mobile, tap or drag across the graph. Switch themes and views to turn commits into ships, towers, or a current no other wrap draws.
-          </p>
-        </aside>
-      </section>
+        <header className={styles.nav}>
+          <Link className={styles.brandLink} href="/"><BrandLogo /></Link>
+          <span className={styles.navMeta}>GITHUB / CONTRIBUTION WRAP</span>
+          <a className={styles.navBack} href="https://github.com/rhrits">@rhrits</a>
+        </header>
+
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>Forest theme · Full-year heatmap</p>
+            <h1>Wrap your<br /><em>GitHub year.</em></h1>
+            <p className={styles.lede}>
+              Chart every contribution as a heatmap, a harbor of ships, a rising skyline, or a live ocean current — then share the voyage with a thought.
+            </p>
+            <form className={styles.search} onSubmit={onSubmit}>
+              <input
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="GitHub username"
+                aria-label="GitHub username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+              <button type="submit" disabled={loading}>
+                <Search size={14} /> {loading ? "Loading" : "Show wrap"}
+              </button>
+            </form>
+            <div className={styles.examples}>
+              <span>Try</span>
+              {EXAMPLES.map((example) => (
+                <button key={example} type="button" onClick={() => void loadUser(example)}>
+                  {example}
+                </button>
+              ))}
+            </div>
+            {error ? <p className={styles.error}>{error}</p> : null}
+          </div>
+          <aside className={styles.heroPanel}>
+            <p className={styles.eyebrow}>How to inspect</p>
+            <p>
+              Hover a square on desktop. On mobile, tap or drag across the graph. Switch themes and views to turn commits into ships, towers, or a current no other wrap draws.
+            </p>
+          </aside>
+        </section>
+      </div>
 
       <section className={styles.wrap}>
         {loading ? <div className={styles.skeleton} /> : null}
