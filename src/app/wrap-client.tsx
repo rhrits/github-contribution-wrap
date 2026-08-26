@@ -102,23 +102,6 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
           <div className={styles.bannerArt} />
           <div className={styles.bannerAurora} />
           <div className={styles.bannerVignette} />
-          <div className={styles.bannerHarbor} />
-          <div className={styles.bannerFleet}>
-            {[22, 34, 16, 44, 26, 14, 52, 20, 30, 40, 18, 28, 24, 38].map((size, index) => (
-              <span
-                key={index}
-                className={styles.bannerShip}
-                style={{
-                  width: size,
-                  height: size * 0.72,
-                  animationDelay: `${(index % 7) * 0.22}s`,
-                }}
-              >
-                <i className={styles.sail} />
-                <b className={styles.hull} />
-              </span>
-            ))}
-          </div>
         </div>
         <header className={styles.nav}>
           <Link className={styles.brandLink} href="/"><BrandLogo /></Link>

@@ -61,72 +61,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, #000 0%, #000c 26%, #0004 52%, transparent 78%),
-    linear-gradient(180deg, #0008 0%, transparent 26%, transparent 68%, #041018cc 100%);
-}
-
-.bannerHarbor {
-  position: absolute;
-  left: -4%;
-  right: -4%;
-  bottom: 0;
-  height: 38%;
-  background:
-    linear-gradient(180deg, transparent, #052a36aa 36%, #02151ccc 100%);
-}
-
-.bannerHarbor::before,
-.bannerHarbor::after {
-  content: "";
-  position: absolute;
-  left: -8%;
-  right: -8%;
-  height: 42px;
-  background: radial-gradient(circle at 12px 10px, #39d353 2px, transparent 3px);
-  background-size: 32px 22px;
-  opacity: 0.35;
-  animation: tide 8s linear infinite;
-}
-
-.bannerHarbor::before {
-  bottom: 28px;
-}
-
-.bannerHarbor::after {
-  bottom: 10px;
-  opacity: 0.18;
-  animation-duration: 13s;
-  animation-direction: reverse;
-}
-
-.bannerFleet {
-  position: absolute;
-  left: 22%;
-  right: 3%;
-  bottom: 4%;
-  z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  min-height: 90px;
-  pointer-events: none;
-}
-
-.bannerShip {
-  position: relative;
-  flex: 0 0 auto;
-  filter: drop-shadow(0 8px 10px #0008);
-  animation: bob 2.6s ease-in-out infinite;
-}
-
-.bannerShip .sail {
-  border-left-width: 9px;
-  border-top-width: 13px;
-  border-bottom-width: 5px;
-}
-
-.bannerShip .hull {
-  background: linear-gradient(180deg, #7dff9a, #146b3a);
+    linear-gradient(90deg, #000 0%, #000d 28%, #0006 54%, #0003 72%, #0008 100%),
+    linear-gradient(180deg, #0008 0%, transparent 28%, transparent 62%, #000 100%);
 }
 
 @keyframes bannerDrift {
@@ -136,10 +72,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bannerArt,
-  .bannerAurora,
-  .bannerHarbor::before,
-  .bannerHarbor::after,
-  .bannerShip {
+  .bannerAurora {
     animation: none;
   }
 }
@@ -205,7 +138,7 @@
   position: relative;
   z-index: 1;
   flex: 1;
-  padding: 72px 6vw 96px;
+  padding: 72px 6vw 56px;
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 6vw;
@@ -683,19 +616,9 @@
     min-height: auto;
   }
 
-  .bannerFleet {
-    left: 4%;
-    right: 2%;
-    bottom: 2%;
-  }
-
-  .bannerShip:nth-child(n + 9) {
-    display: none;
-  }
-
   .hero {
     display: block;
-    padding: 48px 4vw 72px;
+    padding: 48px 4vw 28px;
   }
 
   .hero h1 {
