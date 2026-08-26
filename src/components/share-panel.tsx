@@ -14,7 +14,7 @@ export function SharePanel({ wrap }: { wrap: ContributionWrap }) {
   const copy = async (label: string) => {
     await navigator.clipboard.writeText(`${thought}\n${url}`);
     setCopied(label);
-    window.setTimeout(() => setCopied(""), 1800);
+    window.setTimeout(() => setCopied(""), 4000);
   };
 
   return (
