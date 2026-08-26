@@ -7,10 +7,16 @@ import { Download, Search } from "lucide-react";
 import type { ContributionDay, ContributionWrap } from "@/lib/github-contributions";
 import { computeStreaks, isValidUsername, normalizeUsername } from "@/lib/github-contributions";
 import { downloadContributionWrap } from "@/lib/export-contribution-wrap";
+import { THEMES, VIEWS, type ThemeId, type ViewId } from "@/lib/themes";
 import { ContributionHeatmap } from "@/components/contribution-heatmap";
+import { OceanFleet } from "@/components/ocean-fleet";
+import { Skyline } from "@/components/skyline";
+import { CommitCurrent } from "@/components/commit-current";
+import { SharePanel } from "@/components/share-panel";
+import { StackHarbor } from "@/components/stack-harbor";
 import styles from "./wrap.module.css";
 
-const EXAMPLES = ["gaearon", "torvalds", "octocat", "vercel"];
+const EXAMPLES = ["rhrits", "gaearon", "torvalds", "octocat"];
 
 export function WrapClient({ initialUsername = "" }: { initialUsername?: string }) {
   const [username, setUsername] = useState(initialUsername);
@@ -20,6 +26,8 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
+  const [theme, setTheme] = useState<ThemeId>("ocean");
+  const [view, setView] = useState<ViewId>("grid");
   const booted = useRef(false);
 
   const visibleYears = useMemo(() => {
@@ -86,19 +94,19 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
   };
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-theme={theme}>
       <header className={styles.nav}>
         <Link className={styles.navMark} href="/">WRAP<span>.</span></Link>
         <span className={styles.navMeta}>GITHUB / CONTRIBUTION WRAP</span>
-        <a className={styles.navBack} href="https://github.com">GitHub</a>
+        <a className={styles.navBack} href="https://github.com/rhrits">@rhrits</a>
       </header>
 
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}>Black · Green · Every square</p>
+          <p className={styles.eyebrow}>Harbor · Skyline · Commit current</p>
           <h1>Wrap your<br /><em>GitHub year.</em></h1>
           <p className={styles.lede}>
-            Enter your GitHub username to open every contribution heatmap, inspect a day on desktop or mobile, and download the wrap as an image.
+            Chart every contribution as a heatmap, a harbor of ships, a rising skyline, or a live ocean current — then share the voyage with a thought.
           </p>
           <form className={styles.search} onSubmit={onSubmit}>
             <input
@@ -127,7 +135,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
         <aside className={styles.heroPanel}>
           <p className={styles.eyebrow}>How to inspect</p>
           <p>
-            Hover a square on desktop. On mobile, tap or drag across the graph — the selected day stays pinned so you can read the count without covering the heatmap.
+            Hover a square on desktop. On mobile, tap or drag across the graph. Switch themes and views to turn commits into ships, towers, or a current no other wrap draws.
           </p>
         </aside>
       </section>
@@ -150,7 +158,39 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
               <div className={styles.stat}><b>{wrap.allTimeTotal.toLocaleString()}</b><span>All-time contributions</span></div>
               <div className={styles.stat}><b>{wrap.lastYearTotal.toLocaleString()}</b><span>Last 12 months</span></div>
               <div className={styles.stat}><b>{stats.longest}</b><span>Longest streak</span></div>
-              <div className={styles.stat}><b>{stats.current}</b><span>Current streak</span></div>
+              <div className={styles.stat}><b>{wrap.activeDays.toLocaleString()}</b><span>Active days</span></div>
+            </div>
+
+            {wrap.busiestMonth ? (
+              <p className={styles.currentNote}>
+                High tide: {wrap.busiestMonth.label} ({wrap.busiestMonth.total.toLocaleString()} commits)
+                {wrap.quietestMonth ? ` · slack water: ${wrap.quietestMonth.label}` : ""}.
+              </p>
+            ) : null}
+
+            <div className={styles.pickers}>
+              {THEMES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`${styles.picker} ${theme === item.id ? styles.pickerActive : ""}`}
+                  onClick={() => setTheme(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <div className={styles.pickers}>
+              {VIEWS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`${styles.picker} ${view === item.id ? styles.pickerActive : ""}`}
+                  onClick={() => setView(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             <div className={styles.toolbar}>
@@ -179,26 +219,37 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
             </div>
 
             {visibleYears.map((year) => (
-              <ContributionHeatmap
-                key={year.year}
-                year={year}
-                selectedDate={selected?.date ?? null}
-                onSelect={setSelected}
-              />
+              <div key={year.year}>
+                {view === "grid" ? (
+                  <ContributionHeatmap
+                    year={year}
+                    selectedDate={selected?.date ?? null}
+                    onSelect={setSelected}
+                  />
+                ) : null}
+                {view === "fleet" ? <OceanFleet year={year} /> : null}
+                {view === "skyline" ? <Skyline year={year} /> : null}
+                {view === "current" ? <CommitCurrent year={year} /> : null}
+              </div>
             ))}
 
-            <div className={styles.legend} aria-hidden>
-              Less
-              <i className={styles.level0} />
-              <i className={styles.level1} />
-              <i className={styles.level2} />
-              <i className={styles.level3} />
-              <i className={styles.level4} />
-              More
-            </div>
+            {view === "grid" ? (
+              <div className={styles.legend} aria-hidden>
+                Less
+                <i className={styles.level0} />
+                <i className={styles.level1} />
+                <i className={styles.level2} />
+                <i className={styles.level3} />
+                <i className={styles.level4} />
+                More
+              </div>
+            ) : null}
+
+            <StackHarbor wrap={wrap} />
+            <SharePanel wrap={wrap} />
 
             <div className={styles.inspect}>
-              {selected ? (
+              {selected && view === "grid" ? (
                 <>
                   <div>
                     <strong>{selected.count.toLocaleString()}</strong>
@@ -215,7 +266,11 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
                   </span>
                 </>
               ) : (
-                <span>Hover or tap a square to inspect that day. On a phone, slide across the graph.</span>
+                <span>
+                  {view === "grid"
+                    ? "Hover or tap a square to inspect that day."
+                    : "Ships and towers are weeks. The commit current is unique to WRAP."}
+                </span>
               )}
             </div>
           </>
@@ -223,8 +278,11 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
       </section>
 
       <footer className={styles.footer}>
-        <span>WRAP.</span>
-        <span>Public GitHub contribution calendars · black / green wrap</span>
+        <span className={styles.builtBy}>
+          Built by Hritik Raj ·
+          <a href="https://github.com/rhrits" target="_blank" rel="noreferrer">@rhrits</a>
+        </span>
+        <span>Public GitHub charts · WRAP.</span>
       </footer>
     </main>
   );

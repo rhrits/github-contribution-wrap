@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GitHub Contribution Wrap",
-  description: "Enter a GitHub username to view every contribution heatmap, inspect each day, and download a black-and-green wrap image.",
+  description: "Harbor fleets, skylines, and a commit current for any GitHub username. Built by Hritik Raj (@rhrits).",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
