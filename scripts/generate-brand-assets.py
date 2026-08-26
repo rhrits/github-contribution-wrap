@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import math
 import struct
 import zlib
 from pathlib import Path
@@ -220,8 +219,6 @@ def scene_pixels(width: int, height: int, *, wordmark: bool = True) -> list[list
             put(lx + x, ly + y, logo[y][x])
     radial(lx + mark // 2, ly + mark // 2, mark, accent, 0.16)
 
-    draw_harbor(pixels, width, height, accent, glow, teal)
-
     if not wordmark:
         return pixels
 
@@ -257,99 +254,8 @@ def scene_pixels(width: int, height: int, *, wordmark: bool = True) -> list[list
     return pixels
 
 
-def fill_triangle(
-    pixels: list[list[tuple[int, int, int]]],
-    a: tuple[int, int],
-    b: tuple[int, int],
-    c: tuple[int, int],
-    color: tuple[int, int, int],
-) -> None:
-    xs = [a[0], b[0], c[0]]
-    ys = [a[1], b[1], c[1]]
-    min_x, max_x = max(0, min(xs)), min(len(pixels[0]) - 1, max(xs))
-    min_y, max_y = max(0, min(ys)), min(len(pixels) - 1, max(ys))
-    denom = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
-    if denom == 0:
-        return
-    for y in range(min_y, max_y + 1):
-        row = pixels[y]
-        for x in range(min_x, max_x + 1):
-            w1 = ((b[1] - c[1]) * (x - c[0]) + (c[0] - b[0]) * (y - c[1])) / denom
-            w2 = ((c[1] - a[1]) * (x - c[0]) + (a[0] - c[0]) * (y - c[1])) / denom
-            w3 = 1 - w1 - w2
-            if w1 >= 0 and w2 >= 0 and w3 >= 0:
-                row[x] = color
-
-
-def draw_ship(
-    pixels: list[list[tuple[int, int, int]]],
-    left: int,
-    water_y: int,
-    width: int,
-    height: int,
-    sail: tuple[int, int, int],
-    hull: tuple[int, int, int],
-    mast: tuple[int, int, int],
-) -> None:
-    hull_top = water_y - int(height * 0.30)
-    hull_bot = water_y + int(height * 0.10)
-    max_y = len(pixels) - 1
-    max_x = len(pixels[0]) - 1
-    x0, x1 = left, left + width
-    top_l = left + int(width * 0.10)
-    top_r = left + int(width * 0.90)
-    for y in range(max(0, hull_top), min(max_y, hull_bot) + 1):
-        t = 0 if hull_bot == hull_top else (y - hull_top) / (hull_bot - hull_top)
-        xa = int(top_l + (x0 - top_l) * t)
-        xb = int(top_r + (x1 - top_r) * t)
-        for x in range(max(0, xa), min(max_x, xb) + 1):
-            pixels[y][x] = hull
-    mast_x = left + int(width * 0.38)
-    sail_top = water_y - height
-    if 0 <= mast_x <= max_x:
-        for y in range(max(0, sail_top), max(0, hull_top)):
-            pixels[y][mast_x] = mast
-            if mast_x + 1 <= max_x:
-                pixels[y][mast_x + 1] = mast
-    fill_triangle(
-        pixels,
-        (mast_x + 2, sail_top + 2),
-        (mast_x + 2, hull_top - 1),
-        (left + int(width * 0.98), hull_top - int(height * 0.08)),
-        sail,
-    )
-
-
-def draw_harbor(
-    pixels: list[list[tuple[int, int, int]]],
-    width: int,
-    height: int,
-    accent: tuple[int, int, int],
-    glow: tuple[int, int, int],
-    teal: tuple[int, int, int],
-) -> None:
-    water_y = int(height * 0.78)
-    deep_water = (4, 18, 28)
-    for y in range(water_y - 18, height):
-        depth = (y - (water_y - 18)) / max(1, height - (water_y - 18))
-        row = pixels[y]
-        for x in range(width):
-            wave = 0.5 + 0.5 * math.sin(x / 28.0 + y / 18.0)
-            color = blend(deep_water, teal, 0.18 + wave * 0.22)
-            row[x] = blend(row[x], color, 0.35 + depth * 0.55)
-            if y < water_y + int(6 * math.sin(x / 22.0)):
-                row[x] = add_light(row[x], glow, 0.08 * (1 - depth))
-
-    hull = hex_rgb("#0b3d2e")
-    mast = hex_rgb("#d7ffe3")
-    sizes = [52, 78, 40, 96, 58, 34, 110, 46, 70, 88, 36, 64, 54, 92]
-    start_x = int(width * 0.28)
-    span = width - start_x - int(width * 0.04)
-    for index, size in enumerate(sizes):
-        left = start_x + int(span * index / max(1, len(sizes) - 1)) - size // 2
-        bob = int(6 * math.sin(index * 1.3))
-        sail = accent if index % 3 else glow
-        draw_ship(pixels, left, water_y + bob, size, int(size * 0.78), sail, hull if index % 4 else accent, mast)
+def og_pixels(width: int = 1200, height: int = 630) -> list[list[tuple[int, int, int]]]:
+    return scene_pixels(width, height, wordmark=True)
 
 
 def write_png(path: Path, pixels: list[list[tuple[int, int, int]]]) -> None:
