@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { ContributionDay, ContributionYear } from "@/lib/github-contributions";
 import { monthLabels, weeksFromDays } from "@/lib/github-contributions";
 import styles from "@/app/wrap.module.css";
@@ -76,7 +76,7 @@ export function ContributionHeatmap({
           <div className={styles.gridWrap}>
             <div
               className={styles.monthRow}
-              style={{ gridTemplateColumns: `repeat(${weeks.length}, 12px)` }}
+              style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))` }}
             >
               {weeks.map((_, weekIndex) => {
                 const month = months.find((item) => item.week === weekIndex);
@@ -96,6 +96,7 @@ export function ContributionHeatmap({
                       key={day.date}
                       type="button"
                       data-date={day.date}
+                      style={{ "--i": weekIndex * 7 + dayIndex } as CSSProperties}
                       className={`${styles.cell} ${styles[`level${Math.min(4, day.level)}`]} ${selectedDate === day.date ? styles.cellActive : ""}`}
                       aria-label={formatDay(day)}
                       onPointerEnter={(event) => showTip(day, event.currentTarget)}

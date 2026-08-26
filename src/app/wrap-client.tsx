@@ -13,6 +13,7 @@ import { OceanFleet } from "@/components/ocean-fleet";
 import { Skyline } from "@/components/skyline";
 import { CommitCurrent } from "@/components/commit-current";
 import { SharePanel } from "@/components/share-panel";
+import { AwardsBoard } from "@/components/awards-board";
 import { StackHarbor } from "@/components/stack-harbor";
 import styles from "./wrap.module.css";
 
@@ -26,7 +27,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
-  const [theme, setTheme] = useState<ThemeId>("ocean");
+  const [theme, setTheme] = useState<ThemeId>("forest");
   const [view, setView] = useState<ViewId>("grid");
   const booted = useRef(false);
 
@@ -103,7 +104,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
 
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}>Harbor · Skyline · Commit current</p>
+          <p className={styles.eyebrow}>Forest theme · Full-year heatmap</p>
           <h1>Wrap your<br /><em>GitHub year.</em></h1>
           <p className={styles.lede}>
             Chart every contribution as a heatmap, a harbor of ships, a rising skyline, or a live ocean current — then share the voyage with a thought.
@@ -245,6 +246,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
               </div>
             ) : null}
 
+            <AwardsBoard wrap={wrap} />
             <StackHarbor wrap={wrap} />
             <SharePanel wrap={wrap} />
 
