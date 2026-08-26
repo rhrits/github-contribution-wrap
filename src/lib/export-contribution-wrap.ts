@@ -58,7 +58,7 @@ export async function downloadContributionWrap(wrap: ContributionWrap, yearsToRe
 
   ctx.fillStyle = "#8bffb2";
   ctx.font = "600 18px ui-monospace, SFMono-Regular, Menlo, monospace";
-  ctx.fillText("GITHUB  /  CONTRIBUTION WRAP", 64, 56);
+  ctx.fillText("WRAP.  /  BUILT BY HRITIK RAJ  @RHRITS", 64, 56);
 
   const avatar = await loadImage(`${wrap.user.avatarUrl}${wrap.user.avatarUrl.includes("?") ? "&" : "?"}s=160`);
   ctx.save();

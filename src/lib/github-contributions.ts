@@ -18,7 +18,35 @@ export type GithubUserCard = {
   htmlUrl: string;
   createdAt: string | null;
   followers: number;
+  following: number;
   publicRepos: number;
+  location: string | null;
+  company: string | null;
+  blog: string | null;
+};
+
+export type PublicRepo = {
+  name: string;
+  description: string | null;
+  htmlUrl: string;
+  stars: number;
+  forks: number;
+  language: string | null;
+  topics: string[];
+  updatedAt: string;
+};
+
+export type TechStackItem = {
+  name: string;
+  repos: number;
+  kind: "language" | "topic";
+};
+
+export type VoyageWeek = {
+  start: string;
+  total: number;
+  peak: number;
+  days: ContributionDay[];
 };
 
 export type ContributionWrap = {
@@ -26,6 +54,11 @@ export type ContributionWrap = {
   years: ContributionYear[];
   lastYearTotal: number;
   allTimeTotal: number;
+  topRepos: PublicRepo[];
+  stack: TechStackItem[];
+  busiestMonth: { label: string; total: number } | null;
+  quietestMonth: { label: string; total: number } | null;
+  activeDays: number;
 };
 
 export const USERNAME_PATTERN = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
@@ -109,7 +142,11 @@ export async function fetchGithubUser(username: string): Promise<GithubUserCard 
       htmlUrl: `https://github.com/${username}`,
       createdAt: null,
       followers: 0,
+      following: 0,
       publicRepos: 0,
+      location: null,
+      company: null,
+      blog: null,
     };
   }
 
@@ -121,7 +158,11 @@ export async function fetchGithubUser(username: string): Promise<GithubUserCard 
     html_url: string;
     created_at: string;
     followers: number;
+    following: number;
     public_repos: number;
+    location: string | null;
+    company: string | null;
+    blog: string | null;
     message?: string;
   };
 
@@ -135,8 +176,109 @@ export async function fetchGithubUser(username: string): Promise<GithubUserCard 
     htmlUrl: data.html_url,
     createdAt: data.created_at,
     followers: data.followers,
+    following: data.following,
     publicRepos: data.public_repos,
+    location: data.location,
+    company: data.company,
+    blog: data.blog,
   };
+}
+
+type GithubRepoPayload = {
+  name: string;
+  fork: boolean;
+  description: string | null;
+  html_url: string;
+  stargazers_count: number;
+  forks_count: number;
+  language: string | null;
+  topics?: string[];
+  updated_at: string;
+};
+
+export async function fetchProfileExtras(username: string) {
+  const response = await fetch(
+    `https://api.github.com/users/${username}/repos?per_page=100&sort=updated&type=owner`,
+    {
+      headers: {
+        "User-Agent": GITHUB_HEADERS["User-Agent"],
+        Accept: "application/vnd.github+json",
+      },
+      next: { revalidate: 600 },
+    },
+  );
+  if (!response.ok) return { topRepos: [] as PublicRepo[], stack: [] as TechStackItem[] };
+
+  const payload = (await response.json()) as GithubRepoPayload[] | { message?: string };
+  if (!Array.isArray(payload)) return { topRepos: [] as PublicRepo[], stack: [] as TechStackItem[] };
+
+  const owned = payload.filter((repo) => !repo.fork);
+  const topRepos = [...owned]
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 8)
+    .map((repo) => ({
+      name: repo.name,
+      description: repo.description,
+      htmlUrl: repo.html_url,
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      language: repo.language,
+      topics: repo.topics ?? [],
+      updatedAt: repo.updated_at,
+    }));
+
+  const languages = new Map<string, number>();
+  const topics = new Map<string, number>();
+  for (const repo of owned) {
+    if (repo.language) languages.set(repo.language, (languages.get(repo.language) ?? 0) + 1);
+    for (const topic of repo.topics ?? []) {
+      topics.set(topic, (topics.get(topic) ?? 0) + 1);
+    }
+  }
+
+  const stack: TechStackItem[] = [
+    ...[...languages.entries()].map(([name, repos]) => ({ name, repos, kind: "language" as const })),
+    ...[...topics.entries()].map(([name, repos]) => ({ name, repos, kind: "topic" as const })),
+  ]
+    .sort((a, b) => b.repos - a.repos)
+    .slice(0, 12);
+
+  return { topRepos, stack };
+}
+
+export function monthTotals(days: ContributionDay[]) {
+  const buckets = new Map<string, number>();
+  for (const day of days) {
+    const label = day.date.slice(0, 7);
+    buckets.set(label, (buckets.get(label) ?? 0) + day.count);
+  }
+  const ranked = [...buckets.entries()]
+    .map(([key, total]) => ({
+      key,
+      total,
+      label: new Date(`${key}-01T00:00:00Z`).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }),
+    }))
+    .sort((a, b) => b.total - a.total);
+  return {
+    busiestMonth: ranked[0] ? { label: ranked[0].label, total: ranked[0].total } : null,
+    quietestMonth: ranked.length ? { label: ranked[ranked.length - 1].label, total: ranked[ranked.length - 1].total } : null,
+  };
+}
+
+export function weeksAsVoyages(days: ContributionDay[]): VoyageWeek[] {
+  return weeksFromDays(days)
+    .map((week) => {
+      const filled = week.filter((day): day is ContributionDay => Boolean(day));
+      if (!filled.length) return null;
+      const total = filled.reduce((sum, day) => sum + day.count, 0);
+      return {
+        start: filled[0].date,
+        total,
+        peak: Math.max(...filled.map((day) => day.count)),
+        days: filled,
+      };
+    })
+    .filter((week): week is VoyageWeek => Boolean(week));
 }
 
 async function fetchYearFromGithub(username: string, year: number): Promise<ContributionYear> {
@@ -222,6 +364,9 @@ export async function loadContributionWrap(rawUsername: string): Promise<Contrib
   }
 
   const lastYear = await fetchLastYearFromGithub(user.login).catch(() => null);
+  const extras = await fetchProfileExtras(user.login).catch(() => ({ topRepos: [], stack: [] }));
+  const allDays = years.flatMap((year) => year.days);
+  const months = monthTotals(allDays);
   const allTimeTotal = years.reduce((sum, year) => sum + year.total, 0);
 
   return {
@@ -229,6 +374,11 @@ export async function loadContributionWrap(rawUsername: string): Promise<Contrib
     years,
     lastYearTotal: lastYear?.total ?? years[0]?.total ?? 0,
     allTimeTotal,
+    topRepos: extras.topRepos,
+    stack: extras.stack,
+    busiestMonth: months.busiestMonth,
+    quietestMonth: months.quietestMonth,
+    activeDays: allDays.filter((day) => day.count > 0).length,
   };
 }
 
