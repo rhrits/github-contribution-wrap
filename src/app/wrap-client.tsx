@@ -14,6 +14,7 @@ import { Skyline } from "@/components/skyline";
 import { CommitCurrent } from "@/components/commit-current";
 import { SharePanel } from "@/components/share-panel";
 import { AwardsBoard } from "@/components/awards-board";
+import { BrandLogo } from "@/components/brand-logo";
 import { StackHarbor } from "@/components/stack-harbor";
 import styles from "./wrap.module.css";
 
@@ -97,7 +98,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
   return (
     <main className={styles.page} data-theme={theme}>
       <header className={styles.nav}>
-        <Link className={styles.navMark} href="/">WRAP<span>.</span></Link>
+        <Link className={styles.brandLink} href="/"><BrandLogo /></Link>
         <span className={styles.navMeta}>GITHUB / CONTRIBUTION WRAP</span>
         <a className={styles.navBack} href="https://github.com/rhrits">@rhrits</a>
       </header>
@@ -147,7 +148,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
         {wrap && stats ? (
           <>
             <div className={styles.profile}>
-              <Image className={styles.avatar} src={wrap.user.avatarUrl} alt="" width={84} height={84} />
+              <Image className={styles.avatar} src={wrap.user.avatarUrl} alt={`${wrap.user.login} avatar`} width={84} height={84} />
               <div>
                 <h2>{wrap.user.name || wrap.user.login}</h2>
                 <a href={wrap.user.htmlUrl} target="_blank" rel="noreferrer">@{wrap.user.login}</a>
