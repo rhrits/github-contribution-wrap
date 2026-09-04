@@ -462,12 +462,12 @@
 }
 
 .pin b {
-  font: 9px var(--mono);
+  font: 11px var(--mono);
   color: #f4fff6;
-  background: #03140acc;
-  padding: 3px 6px;
+  background: #03140ae8;
+  padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid #39d35344;
+  border: 1px solid #39d35366;
   white-space: nowrap;
 }
 
@@ -486,8 +486,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 28px;
-  height: 16px;
+  width: 36px;
+  height: 20px;
   offset-anchor: center;
   offset-rotate: auto;
   animation: ride linear infinite;
@@ -497,8 +497,8 @@
 }
 
 .vehicleSvg {
-  width: 28px;
-  height: 16px;
+  width: 36px;
+  height: 20px;
   display: block;
 }
 
