@@ -121,9 +121,33 @@
   color: #39d353;
 }
 
-.navMeta {
+.navLinks {
+  display: flex;
+  gap: 18px;
   color: #6f8a78;
   font: 10px var(--mono);
+}
+
+.navLinks a {
+  color: #c6ffd4;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 3px;
+}
+
+.navLinks a[aria-current="page"],
+.navLinks a:hover {
+  border-bottom-color: #39d35388;
+}
+
+.heroCta {
+  display: inline-block;
+  margin-top: 16px;
+  color: #39d353;
+  font: 11px var(--mono);
+  text-decoration: none;
+  border-bottom: 1px solid #39d35366;
+  padding-bottom: 4px;
 }
 
 .navBack {
@@ -189,6 +213,7 @@
   font: 16px var(--mono);
   outline: none;
   backdrop-filter: blur(12px);
+  border-radius: 14px;
 }
 
 .search input:focus {
@@ -208,6 +233,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border-radius: 14px;
 }
 
 .search button:disabled,
@@ -241,6 +267,7 @@
   box-shadow: 0 24px 80px #39d35322, inset 0 1px 0 #39d35333;
   padding: 22px;
   min-height: 180px;
+  border-radius: 22px;
 }
 
 .heroPanel p {
@@ -269,6 +296,7 @@
   padding: 22px;
   border: 1px solid #39d35328;
   background: #050a07;
+  border-radius: 20px;
 }
 
 .avatar {
@@ -308,6 +336,7 @@
   border: 1px solid #39d35322;
   background: #06110b;
   padding: 16px;
+  border-radius: 16px;
 }
 
 .stat b {
@@ -374,6 +403,7 @@
   background: #03140ae8;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px #0008;
+  border-radius: 16px;
 }
 
 .inspect strong {
@@ -391,6 +421,7 @@
   border: 1px solid #39d3531f;
   background: #030806;
   padding: 16px 16px 10px;
+  border-radius: 18px;
 }
 
 .yearHead {
@@ -608,7 +639,8 @@
     font-size: 8px;
   }
 
-  .navMeta {
+  .navMeta,
+  .navLinks {
     display: none;
   }
 
@@ -849,6 +881,23 @@
   --cell-4: #fdba74;
 }
 
+.page[data-theme="bengaluru"] {
+  --page-bg:
+    radial-gradient(circle at 80% 0%, #f59e0b22, transparent 32%),
+    radial-gradient(circle at 12% 100%, #0ea5e922, transparent 36%),
+    linear-gradient(#070b08, #04120c);
+  --text: #e8ffe9;
+  --muted: #9cb5a4;
+  --accent: #39d353;
+  --panel: #07110d;
+  --line: #39d35333;
+  --cell-0: #161b22;
+  --cell-1: #0e4429;
+  --cell-2: #006d32;
+  --cell-3: #26a641;
+  --cell-4: #39d353;
+}
+
 .pickers {
   display: flex;
   flex-wrap: wrap;
@@ -860,9 +909,10 @@
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
-  padding: 8px 10px;
+  padding: 8px 12px;
   font: 10px var(--mono);
   cursor: pointer;
+  border-radius: 999px;
 }
 
 .pickerActive {
@@ -875,6 +925,7 @@
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px;
+  border-radius: 18px;
 }
 
 .ocean {
@@ -999,6 +1050,10 @@
   line-height: 1.6;
 }
 
+.currentNote a {
+  color: var(--accent);
+}
+
 .split {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -1079,6 +1134,7 @@
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px;
+  border-radius: 18px;
 }
 
 .thought {
@@ -1139,6 +1195,7 @@
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px;
+  border-radius: 16px;
 }
 
 .tokenBar strong {
@@ -1164,6 +1221,7 @@
   background: var(--panel);
   padding: 12px 10px;
   min-height: 118px;
+  border-radius: 14px;
 }
 
 .badge h4 {

@@ -44,6 +44,8 @@ export const metadata: Metadata = {
     "developer wrap",
     "WRAP",
     "India",
+    "Bengaluru",
+    "GitHub traffic map",
     "Hritik Raj",
     "rhrits",
   ],
