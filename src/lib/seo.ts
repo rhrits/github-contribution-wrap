@@ -14,7 +14,7 @@ export const SITE_URL = resolveSiteUrl();
 export const SITE_NAME = "WRAP.";
 export const SITE_TITLE = "WRAP. GitHub Contribution Wrap";
 export const SITE_DESCRIPTION =
-  "Turn any GitHub contribution calendar into a forest heatmap, harbor fleet, skyline, or commit current. Download a wrap image, unlock awards, and share the voyage. Built in India by Hritik Raj (@rhrits).";
+  "Turn any GitHub contribution calendar into a forest heatmap, harbor fleet, skyline, commit current, or a 3D Bengaluru traffic map. Download a wrap image, unlock awards, and share the voyage. Built in India by Hritik Raj (@rhrits).";
 
 export const GEO = {
   region: "IN",

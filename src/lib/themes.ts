@@ -4,14 +4,16 @@ export const THEMES = [
   { id: "skyline", label: "Skyline", hint: "City of commits" },
   { id: "aurora", label: "Aurora", hint: "North-light code" },
   { id: "ember", label: "Ember", hint: "Forge and fire" },
+  { id: "bengaluru", label: "Bengaluru", hint: "Asphalt and ORR greens" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
-export type ViewId = "grid" | "fleet" | "skyline" | "current";
+export type ViewId = "grid" | "fleet" | "skyline" | "current" | "traffic";
 
 export const VIEWS = [
   { id: "grid", label: "Heatmap" },
   { id: "fleet", label: "Harbor fleet" },
   { id: "skyline", label: "Skyline" },
   { id: "current", label: "Commit current" },
+  { id: "traffic", label: "Bengaluru traffic" },
 ] as const;

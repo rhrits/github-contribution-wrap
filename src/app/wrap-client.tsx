@@ -16,6 +16,7 @@ import { SharePanel } from "@/components/share-panel";
 import { AwardsBoard } from "@/components/awards-board";
 import { BrandLogo } from "@/components/brand-logo";
 import { StackHarbor } from "@/components/stack-harbor";
+import { BengaluruCity } from "@/components/bengaluru-city";
 import styles from "./wrap.module.css";
 
 const EXAMPLES = ["rhrits", "gaearon", "torvalds", "octocat"];
@@ -105,16 +106,19 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
         </div>
         <header className={styles.nav}>
           <Link className={styles.brandLink} href="/"><BrandLogo /></Link>
-          <span className={styles.navMeta}>GITHUB / CONTRIBUTION WRAP</span>
+          <nav className={styles.navLinks}>
+            <Link href="/" aria-current="page">Wrap</Link>
+            <Link href={username ? `/bengaluru?u=${encodeURIComponent(normalizeUsername(username))}` : "/bengaluru"}>Bengaluru map</Link>
+          </nav>
           <a className={styles.navBack} href="https://github.com/rhrits">@rhrits</a>
         </header>
 
         <section className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>Forest theme · Full-year heatmap</p>
+            <p className={styles.eyebrow}>Forest · fleet · skyline · Bengaluru traffic</p>
             <h1>Wrap your<br /><em>GitHub year.</em></h1>
             <p className={styles.lede}>
-              Chart every contribution as a heatmap, a harbor of ships, a rising skyline, or a live ocean current — then share the voyage with a thought.
+              Chart every contribution as a heatmap, a harbor of ships, a rising skyline, a live ocean current — or paint Bengaluru’s roads with gig scooties and corporate cabs.
             </p>
             <form className={styles.search} onSubmit={onSubmit}>
               <input
@@ -143,8 +147,9 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
           <aside className={styles.heroPanel}>
             <p className={styles.eyebrow}>How to inspect</p>
             <p>
-              Hover a square on desktop. On mobile, tap or drag across the graph. Switch themes and views to turn commits into ships, towers, or a current no other wrap draws.
+              Hover a square on desktop. On mobile, tap or drag across the graph. Open the dedicated Bengaluru map to see tech-city traffic as GitHub greens.
             </p>
+            <Link className={styles.heroCta} href="/bengaluru">3D Bengaluru map →</Link>
           </aside>
         </section>
       </div>
@@ -227,7 +232,7 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
               </button>
             </div>
 
-            {visibleYears.map((year) => (
+            {(view === "traffic" ? visibleYears.slice(0, 1) : visibleYears).map((year) => (
               <div key={year.year}>
                 {view === "grid" ? (
                   <ContributionHeatmap
@@ -239,8 +244,15 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
                 {view === "fleet" ? <OceanFleet year={year} /> : null}
                 {view === "skyline" ? <Skyline year={year} /> : null}
                 {view === "current" ? <CommitCurrent year={year} /> : null}
+                {view === "traffic" ? <BengaluruCity year={year} /> : null}
               </div>
             ))}
+            {view === "traffic" && wrap ? (
+              <p className={styles.currentNote}>
+                Full city, location ranks, and traffic filters live on the{" "}
+                <Link href={`/bengaluru?u=${encodeURIComponent(wrap.user.login)}`}>Bengaluru map page</Link>.
+              </p>
+            ) : null}
 
             {view === "grid" ? (
               <div className={styles.legend} aria-hidden>
@@ -279,7 +291,9 @@ export function WrapClient({ initialUsername = "" }: { initialUsername?: string 
                 <span>
                   {view === "grid"
                     ? "Hover or tap a square to inspect that day."
-                    : "Ships and towers are weeks. The commit current is unique to WRAP."}
+                    : view === "traffic"
+                      ? "Drag the city to orbit. Scooties are gig days; cabs are corporate streaks."
+                      : "Ships and towers are weeks. The commit current is unique to WRAP."}
                 </span>
               )}
             </div>
